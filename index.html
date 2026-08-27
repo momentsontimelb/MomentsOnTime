@@ -7,42 +7,42 @@
 </head>
 <body>
 <header class="site-header"><div class="container nav">
-<a class="brand" href="#"><img data-site-logo alt="Moments On Time"><span>Moments On Time</span></a>
-<nav class="navlinks"><a href="#categories">Categories</a><a href="#services">Collection</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
-<a class="nav-cta" href="#contact">Create a moment</a>
+<a class="brand" href="#"><img data-site-logo alt="Moments On Time"><span id="brandName">Moments On Time</span></a>
+<nav class="navlinks"><a id="navCategories" href="#categories">Categories</a><a id="navServices" href="#services">Collection</a><a id="navAbout" href="#about">About</a><a id="navContact" href="#contact">Contact</a></nav>
+<a id="navCta" class="nav-cta" href="#contact">Create a moment</a>
 </div></header>
 
 <main>
 <section class="container hero">
-<div><div class="eyebrow">Gifts • Souvenirs • Mirrors • Custom pieces</div>
-<h1>Made for the moments that matter.</h1>
+<div><div id="heroEyebrow" class="eyebrow">Gifts • Souvenirs • Mirrors • Custom pieces</div>
+<h1 id="heroTitle">Made for the moments that matter.</h1>
 <p id="heroText">Thoughtful gifts, elegant souvenirs and personalized mirrors designed to make your special moments unforgettable.</p>
-<div class="actions"><a class="btn btn-primary" href="#services">Explore collection</a><a class="btn btn-secondary" href="#contact">Request a custom piece</a></div></div>
+<div class="actions"><a id="heroPrimaryCta" class="btn btn-primary" href="#services">Explore collection</a><a id="heroSecondaryCta" class="btn btn-secondary" href="#contact">Request a custom piece</a></div></div>
 <div class="hero-card" id="heroSlider"><div class="empty">Loading service images…</div></div>
 </section>
 
 <section id="categories" class="section"><div class="container">
-<div class="section-head"><div><div class="eyebrow">Explore</div><h2>Our categories</h2></div></div>
-<div id="categoryGrid" class="category-grid"><div class="empty">Loading categories…</div></div>
+<div class="section-head"><div><div id="categoriesEyebrow" class="eyebrow">Explore</div><h2 id="categoriesTitle">Our categories</h2></div><p>Discover our curated collections, made for every kind of moment.</p></div>
+<div id="categoryGrid" class="category-grid"><div class="empty">Loading categories…</div></div><div class="more-wrap"><button id="categoryMore" class="btn btn-secondary more-btn" hidden>Show more</button></div>
 </div></section>
 
 <section id="services" class="section about"><div class="container">
-<div class="section-head"><div><div class="eyebrow">The collection</div><h2>Made with meaning</h2></div><p>Browse the latest services and custom pieces.</p></div>
-<div id="serviceGrid" class="service-grid"><div class="empty">Loading services…</div></div>
+<div class="section-head"><div><div id="servicesEyebrow" class="eyebrow">The collection</div><h2 id="servicesTitle">Made with meaning</h2></div><p id="servicesIntro">Browse our latest pieces and personalized creations.</p></div>
+<div id="serviceGrid" class="service-grid"><div class="empty">Loading services…</div></div><div class="more-wrap"><button id="serviceMore" class="btn btn-secondary more-btn" hidden>Show more</button></div>
 </div></section>
 
 <section id="about" class="section"><div class="container about-grid">
 <img data-site-logo class="about-image" alt="Moments On Time brand">
-<div><div class="eyebrow">Moments On Time</div><h2>Every detail tells your story.</h2><p class="quote">“A timeless keepsake for a love that lasts forever.”</p><p style="color:var(--muted);line-height:1.8">We create memorable gifts, souvenirs, mirrors and personalized pieces for engagements, weddings, birthdays, celebrations and the little moments worth keeping.</p></div>
+<div><div id="aboutEyebrow" class="eyebrow">Moments On Time</div><h2 id="aboutTitle">Every detail tells your story.</h2><p id="aboutQuote" class="quote">“A timeless keepsake for a love that lasts forever.”</p><p id="aboutText" style="color:var(--muted);line-height:1.8">We create memorable gifts, souvenirs, mirrors and personalized pieces for engagements, weddings, birthdays, celebrations and the little moments worth keeping.</p></div>
 </div></section>
 
 <section id="contact" class="section contact"><div class="container">
-<div class="section-head"><div><div class="eyebrow" style="color:#e8d5a6">Let’s create yours</div><h2>Tell us about your moment.</h2></div><p>Send a request and we’ll get back to you with the details.</p></div>
-<div class="contact-grid"><div><p style="line-height:1.8;color:rgba(255,255,255,.78)">For custom orders, include the occasion, preferred style, date and any personalization you want. You can also message us on Instagram.</p><a id="instagramLink" class="btn" style="background:#fff;color:var(--purple);margin-top:12px" target="_blank" rel="noopener">Instagram @momentsontime.lb</a></div>
-<form id="inquiryForm" class="form"><div class="field"><label>Name *</label><input name="name" required></div><div class="field"><label>Phone / WhatsApp *</label><input name="phone" type="tel" required></div><div class="field"><label>Email</label><input name="email" type="email"></div><div class="field"><label>Service / category</label><input name="service" placeholder="e.g. engagement gift"></div><div class="field"><label>Message</label><textarea name="message" placeholder="Tell us what you have in mind…"></textarea></div><button class="btn btn-primary" type="submit">Send request</button></form>
+<div class="section-head"><div><div id="contactEyebrow" class="eyebrow" style="color:#e8d5a6">Let’s create yours</div><h2 id="contactTitle">Tell us about your moment.</h2></div><p id="contactIntro">Send a request and we’ll get back to you with the details.</p></div>
+<div class="contact-grid"><div><p id="contactSideText" style="line-height:1.8;color:rgba(255,255,255,.78)">For custom orders, include the occasion, preferred style, date and any personalization you want. You can also message us on Instagram.</p><a id="instagramLink" class="btn" style="background:#fff;color:var(--purple);margin-top:12px" target="_blank" rel="noopener">Instagram @momentsontime.lb</a></div>
+<form id="inquiryForm" class="form"><div class="field"><label id="formNameLabel">Name *</label><input name="name" required></div><div class="field"><label id="formPhoneLabel">Phone / WhatsApp *</label><input name="phone" type="tel" required></div><div class="field"><label id="formEmailLabel">Email</label><input name="email" type="email"></div><div class="field"><label id="formServiceLabel">Service / category</label><input id="formServiceInput" name="service" placeholder="e.g. engagement gift" required></div><div class="field"><label id="formMessageLabel">Message</label><textarea id="formMessageInput" name="message" placeholder="Tell us what you have in mind…" required></textarea></div><button id="formSubmit" class="btn btn-primary" type="submit">Send request</button></form>
 </div></div></section>
 </main>
-<footer class="footer"><div class="container footer-row"><span>© <span id="year"></span> Moments On Time</span><a id="footerInstagram" target="_blank" rel="noopener">Instagram</a></div></footer>
+<footer class="footer"><div class="container footer-row"><span id="footerText">© <span id="year"></span> Moments On Time</span><a id="footerInstagram" target="_blank" rel="noopener">Instagram</a></div></footer>
 <div id="toast" class="toast"></div>
 <div id="imageLightbox" class="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Expanded image">
   <button id="lightboxClose" class="lightbox-close" type="button" aria-label="Close image">×</button>

@@ -96,67 +96,61 @@ function renderHeroSlider(services){
 
 async function loadSite(){
  if(!supabase){
-   document.querySelector('#categoryGrid').innerHTML='<div class="empty">Connect your Supabase publishable/anon key in <b>config.js</b> to load the website.</div>';
-   document.querySelector('#serviceGrid').innerHTML='<div class="empty">The website is ready; add the Supabase key to show your live services.</div>';
-   document.querySelector('#heroSlider').innerHTML='<div class="empty">Connect Supabase to load service images.</div>';
+   document.querySelector('#categoryGrid').innerHTML='<div class="empty">Categories are being prepared.</div>';
+   document.querySelector('#serviceGrid').innerHTML='<div class="empty">Our collection is being prepared.</div>';
+   document.querySelector('#heroSlider').innerHTML='<div class="empty">Loading...</div>';
    return;
  }
- const [{data:services,error:sErr},{data:images,error:iErr},{data:settings,error:setErr}] = await Promise.all([
+ const [{data:services,error:sErr},{data:categories,error:cErr},{data:settings,error:setErr}] = await Promise.all([
    supabase.from('services').select('*').eq('is_active',true).order('sort_order',{ascending:true}).order('created_at',{ascending:false}),
-   supabase.from('category_images').select('*'),
+   supabase.from('categories').select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:false}),
    supabase.from('site_settings').select('*').eq('id',1).maybeSingle()
  ]);
  siteSettings=settings||{};
- if(sErr){console.error(sErr); toast('Could not load services. Check Supabase setup.');}
- if(iErr) console.error(iErr);
+ if(sErr){console.error(sErr); toast('Could not load the collection. Please try again.');}
+ if(cErr) console.error(cErr);
  if(setErr) console.error(setErr);
  if(settings){
-   if(settings.hero_title) document.querySelector('h1').textContent=settings.hero_title;
-   if(settings.hero_text) document.querySelector('#heroText').textContent=settings.hero_text;
+   const textMap={brand_name:'#brandName',nav_categories:'#navCategories',nav_services:'#navServices',nav_about:'#navAbout',nav_contact:'#navContact',nav_cta:'#navCta',hero_eyebrow:'#heroEyebrow',hero_title:'#heroTitle',hero_text:'#heroText',hero_primary_cta:'#heroPrimaryCta',hero_secondary_cta:'#heroSecondaryCta',categories_eyebrow:'#categoriesEyebrow',categories_title:'#categoriesTitle',categories_intro:'#categoriesIntro',category_more_label:'#categoryMore',services_eyebrow:'#servicesEyebrow',services_title:'#servicesTitle',services_intro:'#servicesIntro',service_more_label:'#serviceMore',about_eyebrow:'#aboutEyebrow',about_title:'#aboutTitle',about_quote:'#aboutQuote',about_text:'#aboutText',contact_eyebrow:'#contactEyebrow',contact_title:'#contactTitle',contact_intro:'#contactIntro',contact_side_text:'#contactSideText',form_name_label:'#formNameLabel',form_phone_label:'#formPhoneLabel',form_email_label:'#formEmailLabel',form_service_label:'#formServiceLabel',form_message_label:'#formMessageLabel',form_service_placeholder:'#formServiceInput',form_message_placeholder:'#formMessageInput',form_submit:'#formSubmit'};
+   Object.entries(textMap).forEach(([key,selector])=>{const el=document.querySelector(selector);if(!el||settings[key]==null||settings[key]==='')return;if(key.endsWith('_placeholder'))el.placeholder=settings[key];else el.textContent=settings[key];});
    if(settings.instagram_url){document.querySelector('#instagramLink').href=settings.instagram_url;document.querySelector('#footerInstagram').href=settings.instagram_url;}
    setLogoElements(settings.logo_url);
  }
  renderHeroSlider(services||[]);
- const imageMap = new Map((images||[]).map(x=>[String(x.category||'').trim().toLowerCase(),remoteImage(x.image_url)]));
- const seen = new Set(), cats=[];
- for(const s of (services||[])){
-   const c=(s.category||'').trim(); if(!c) continue;
-   const k=c.toLowerCase(); if(!seen.has(k)){seen.add(k); cats.push(c);}
-   if(cats.length===4) break;
- }
+ const imageMap = new Map((categories||[]).map(x=>[String(x.name||'').trim().toLowerCase(),remoteImage(x.image_url)]));
+ const categoryLimit=Math.max(1,Number(settings?.category_limit)||4);
+ const serviceLimit=Math.max(1,Number(settings?.service_limit)||4);
+ const cats = (categories||[]).filter(c=>c.is_visible!==false).slice(0,categoryLimit).map(c=>String(c.name||'').trim()).filter(Boolean);
  const fallback=logoUrl();
  const categoryItems=cats.map(c=>({url:imageMap.get(c.toLowerCase())||fallback,alt:c,type:'category'}));
- const serviceItems=(services||[]).slice(0,9).map(s=>({url:remoteImage(s.image_url)||fallback,alt:s.name,type:'service'}));
+ const serviceItems=(services||[]).map(s=>({url:remoteImage(s.image_url)||fallback,alt:s.name,type:'service'}));
  galleryItems=[...serviceItems,...categoryItems].filter(x=>remoteImage(x.url));
  const galleryIndexFor=(type,alt)=>galleryItems.findIndex(x=>x.type===type&&x.alt===alt);
- document.querySelector('#categoryGrid').innerHTML = cats.length ? cats.map(c=>{
-   const img=imageMap.get(c.toLowerCase())||fallback;
-   const gi=galleryIndexFor('category',c);
-   return `<button class="category" type="button" data-lightbox-index="${gi}" aria-label="View ${esc(c)} image">${imageTag(img,c)}<span>${esc(c)}</span></button>`;
- }).join('') : '<div class="empty">Add services with categories in the CRM to populate these four cards.</div>';
- document.querySelector('#serviceGrid').innerHTML = (services||[]).slice(0,9).map(s=>{
-   const gi=galleryIndexFor('service',s.name);
-   return `<article class="service-card" data-lightbox-index="${gi}" tabindex="0" role="button" aria-label="View ${esc(s.name)} image">${imageTag(s.image_url,s.name)}<div class="service-body">
-   <h3>${esc(s.name)}</h3><p>${esc(s.description||'Personalized by Moments On Time.')}</p>${s.price!=null?`<div class="price">${formatPrice(s.price)}</div>`:''}
-   </div></article>`;
- }).join('') || '<div class="empty">No services yet.</div>';
- document.querySelectorAll('[data-lightbox-index]').forEach(el=>{
-   const open=()=>openLightbox(Number(el.dataset.lightboxIndex));
-   el.addEventListener('click',open);
-   el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
- });
+ const visibleServices=(services||[]).filter(s=>s.is_active!==false && (categories||[]).some(c=>c.is_visible!==false && String(c.name||'').trim().toLowerCase()===String(s.category||'').trim().toLowerCase()));
+ const renderCards=(items,limit,type)=>{const shown=items.slice(0,limit);return shown.map(item=>{const gi=galleryIndexFor(type,type==='category'?String(item.name||'').trim():item.name);if(type==='category'){const img=imageMap.get(String(item.name||'').trim().toLowerCase())||fallback;return `<article class="category"><button class="category-image-button" type="button" data-lightbox-index="${gi}" aria-label="Expand ${esc(item.name)} image">${imageTag(img,item.name)}</button><a class="category-name" href="category.html?category=${encodeURIComponent(item.name)}" aria-label="View services in ${esc(item.name)}">${esc(item.name)}</a></article>`;}return `<article class="service-card" data-lightbox-index="${gi}" tabindex="0" role="button" aria-label="View ${esc(item.name)} image">${imageTag(item.image_url,item.name)}<div class="service-body"><h3>${esc(item.name)}</h3><p>${esc(item.description||'Personalized by Moments On Time.')}</p>${item.price!=null?`<div class="price">${formatPrice(item.price)}</div>`:''}</div></article>`;}).join('');};
+ document.querySelector('#categoryGrid').innerHTML = cats.length ? renderCards((categories||[]).filter(c=>c.is_visible!==false),categoryLimit,'category') : '<div class="empty">No categories available.</div>';
+ document.querySelector('#serviceGrid').innerHTML = visibleServices.length ? renderCards(visibleServices,serviceLimit,'service') : '<div class="empty">No services available.</div>';
+ const catMore=document.querySelector('#categoryMore');if(catMore){catMore.hidden=(categories||[]).filter(c=>c.is_visible!==false).length<=categoryLimit;catMore.onclick=()=>{const next=Math.min(categoryLimit*2,(categories||[]).filter(c=>c.is_visible!==false).length);document.querySelector('#categoryGrid').innerHTML=renderCards((categories||[]).filter(c=>c.is_visible!==false),next,'category');bindGallery();catMore.textContent=next<(categories||[]).filter(c=>c.is_visible!==false).length?'Show more':'Show less';catMore.onclick=()=>{if(catMore.textContent==='Show less'){document.querySelector('#categoryGrid').innerHTML=renderCards((categories||[]).filter(c=>c.is_visible!==false),categoryLimit,'category');bindGallery();catMore.textContent='Show more';}else{const n=Math.min(next*2,(categories||[]).filter(c=>c.is_visible!==false).length);document.querySelector('#categoryGrid').innerHTML=renderCards((categories||[]).filter(c=>c.is_visible!==false),n,'category');bindGallery();catMore.textContent=n<(categories||[]).filter(c=>c.is_visible!==false).length?'Show more':'Show less';}};};}
+ const svcMore=document.querySelector('#serviceMore');if(svcMore){svcMore.hidden=visibleServices.length<=serviceLimit;svcMore.onclick=()=>{const total=visibleServices.length;const shown=document.querySelectorAll('#serviceGrid .service-card').length;const next=Math.min(shown+serviceLimit,total);document.querySelector('#serviceGrid').innerHTML=renderCards(visibleServices,next,'service');bindGallery();svcMore.textContent=next<total?'Show more':'Show less';svcMore.onclick=()=>{if(svcMore.textContent==='Show less'){document.querySelector('#serviceGrid').innerHTML=renderCards(visibleServices,serviceLimit,'service');bindGallery();svcMore.textContent='Show more';}else{const n=Math.min(document.querySelectorAll('#serviceGrid .service-card').length+serviceLimit,total);document.querySelector('#serviceGrid').innerHTML=renderCards(visibleServices,n,'service');bindGallery();svcMore.textContent=n<total?'Show more':'Show less';}};};}
+ const bindGallery=()=>document.querySelectorAll('[data-lightbox-index]').forEach(el=>{if(el.dataset.bound)return;el.dataset.bound='1';const open=()=>openLightbox(Number(el.dataset.lightboxIndex));el.addEventListener('click',open);if(el.tagName!=='BUTTON'){el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});}});bindGallery();
 }
 
 document.querySelector('#inquiryForm').addEventListener('submit', async e=>{
  e.preventDefault();
- if(!supabase){toast('Add your Supabase key first.');return;}
+ if(!supabase){toast('Please try again later.');return;}
  const form=e.currentTarget;
  const phone=form.elements.phone.value.trim();
+ const service=form.elements.service.value.trim();
+ const message=form.elements.message.value.trim();
  if(!phone){form.elements.phone.focus();toast('Phone / WhatsApp is required.');return;}
- const obj=Object.fromEntries(new FormData(form).entries()); obj.phone=phone;
- const {error}=await supabase.from('inquiries').insert(obj);
+ if(!service){form.elements.service.focus();toast('Service / category is required.');return;}
+ if(!message){form.elements.message.focus();toast('Message is required.');return;}
+ const obj=Object.fromEntries(new FormData(form).entries()); obj.phone=phone; obj.service=service; obj.message=message;
+ const {data,error}=await supabase.from('inquiries').insert(obj).select('inquiry_number').single();
  if(error){console.error(error);toast(error.message);return;}
- form.reset(); toast('Thank you — your request was sent.');
+ form.reset();
+ const number=data?.inquiry_number || 'pending';
+ toast(`Request received — your inquiry number is ${number}. Please keep it for your call.`);
 });
 setupLightbox();
 loadSite();

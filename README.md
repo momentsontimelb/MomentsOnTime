@@ -1,43 +1,24 @@
-# Moments On Time — Website + CRM
+# Moments On Time — Website + CRM v6
 
-HTML/CSS/JavaScript only, using Supabase for database, authentication and Storage.
+HTML/CSS/JavaScript only, powered by Supabase.
+
+## v6 changes
+- Site Settings keeps only the currency symbol in the CRM UI; prices display like `$25.00`.
+- CRM navigation is a single-page app and avoids unnecessary reinitialization when browser-tab focus/token events occur.
+- Dashboard clearly defines Active services and tracks New, Contacted, Completed and Cancelled inquiries.
+- Added a full Categories section with add/edit/delete, Supabase image upload, search and image/sort filters.
+- Service category is now a dropdown populated from Categories.
+- New service/category forms open in modal popups.
+- Service sort order is automatically incremental within category and normalized according to category order.
+- Added success/error/info banners instead of intrusive alert messages for CRUD feedback.
+- Inquiries support internal CRM notes from the View modal.
+- Website top four categories now come from the managed `categories` table.
+- All website/CRM images continue to use Supabase Storage with logo fallback.
 
 ## Setup
+1. Put your Supabase publishable/anon key in `config.js`.
+2. Run `supabase/setup.sql` in the Supabase SQL Editor. It includes upgrades for existing v5 databases and creates/migrates the `categories` and `inquiries.notes` fields.
+3. Create a Supabase Auth user and add its UUID to `admin_users` as shown at the bottom of the SQL file.
+4. Open `index.html` for the public website and `crm/index.html` for the CRM.
 
-1. Open `supabase/setup.sql` in the Supabase SQL Editor and run it.
-2. Create a Supabase Auth email/password user.
-3. Add that Auth user's UUID to `public.admin_users` using the SQL comment at the end of `setup.sql`.
-4. Put your Supabase publishable/anon key in `config.js`.
-5. Serve the folder from a local web server (for example VS Code Live Server). Do not open the HTML files directly with `file://`.
-
-## Supabase Storage
-
-The SQL creates a public `site-media` bucket. Admins can upload/delete:
-- Website logo: `branding/...`
-- Service images: `services/...`
-- Top 4 category images: `categories/...`
-
-The CRM deletes replaced/removed storage files when their storage path is known.
-
-## Site settings
-
-The CRM Site settings page now manages:
-- Hero title/text
-- Instagram, phone, WhatsApp and email
-- Website logo upload / replace / delete
-- Currency code (USD, EUR, LBP, GBP)
-- Currency symbol (for example `$`)
-
-Service prices on the public website use the configured currency symbol and code.
-
-## Services
-
-Service images are uploaded directly to Supabase Storage from the CRM. When editing a service you can replace the image or remove it. Deleting a service also deletes its stored image when the storage path is known.
-
-## Customer form
-
-Phone / WhatsApp is required in the website form and the database insert policy also requires a non-empty phone value.
-
-## Sign out
-
-CRM sign out calls Supabase `signOut()` and immediately returns to the CRM login screen. The auth state listener also handles `SIGNED_OUT` sessions.
+Never put a Supabase service-role/secret key in browser code.
